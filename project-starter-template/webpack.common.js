@@ -2,6 +2,9 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlPlugin = require('html-webpack-plugin');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const DotenvWebpack = require('dotenv-webpack');
+const dotenv = require('dotenv');
+dotenv.config();
 
 module.exports = {
   entry: {
@@ -23,14 +26,15 @@ module.exports = {
       },
       {
         test: /\.(jpg|jpeg|png|woff|woff2|eot|ttf|svg)$/,
-        type: 'asset/resource'
-      }
-    ]
+        type: 'asset/resource',
+      },
+    ],
   },
   resolve: {
     extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
+    new DotenvWebpack(),
     new CleanWebpackPlugin({
       cleanStaleWebpackAssets: false,
     }),
@@ -39,13 +43,10 @@ module.exports = {
         {
           from: path.resolve('src/static'),
           to: path.resolve('dist'),
-        }
-      ]
+        },
+      ],
     }),
-    ...getHtmlPlugins([
-      'popup',
-      'options'
-    ]),
+    ...getHtmlPlugins(['popup', 'options']),
   ],
   output: {
     filename: '[name].js',
@@ -55,13 +56,16 @@ module.exports = {
     splitChunks: {
       chunks: 'all',
     },
-  }
-}
+  },
+};
 
 function getHtmlPlugins(chunks) {
-  return chunks.map(chunk => new HtmlPlugin({
-    title: 'Weather Extension',
-    filename: `${chunk}.html`,
-    chunks: [chunk],
-  }))
+  return chunks.map(
+    (chunk) =>
+      new HtmlPlugin({
+        title: 'Weather Extension',
+        filename: `${chunk}.html`,
+        chunks: [chunk],
+      })
+  );
 }
